@@ -5,8 +5,8 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-SDL_Window* setup() {
-    SDL_Window *window = NULL;
+int setup(SDL_Window *&window, SDL_Renderer *&renderer) {
+    //SDL_Window *window = NULL;
     //SDL_Surface *surface = NULL;
     if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_EVENTS )) {
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
@@ -17,13 +17,21 @@ SDL_Window* setup() {
         SCREEN_WIDTH, SCREEN_HEIGHT, 
         SDL_WINDOW_SHOWN
     );
-    TTF_Init();
 
-    return window;
+    TTF_Init();
+    renderer = SDL_CreateRenderer(window,-1,0);
+
+    SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+
+    return 0;
 }
 
-int teardown(SDL_Window *window) {
+int teardown(SDL_Window *window, SDL_Renderer *renderer) {
+
     SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
     TTF_Quit();
     SDL_Quit;
     return 0;
@@ -41,6 +49,7 @@ TTF_Font* loadfont(char* file, int ptsize) {
 int drawtext(SDL_Renderer *renderer, char *text) {
     SDL_RenderClear(renderer);
     SDL_Color textcolor = {0,240,0};
+    // Use TTF font of your choice here
     auto font = loadfont("res\\CaskaydiaCoveMono.ttf", 24);
     auto rendered_text = TTF_RenderText_Solid(font, text, textcolor);
     auto texture = SDL_CreateTextureFromSurface(renderer, rendered_text);
@@ -56,9 +65,8 @@ int drawtext(SDL_Renderer *renderer, char *text) {
     return 0;
 }
 
-int test_keyboard(SDL_Window *window) {
+int test_keyboard(SDL_Renderer *renderer) {
     SDL_Event e;
-    SDL_Renderer *renderer = SDL_CreateRenderer(window,-1,0);
     while(true) {
         if ( SDL_PollEvent(&e)) {
             switch (e.type) {
@@ -76,12 +84,14 @@ int test_keyboard(SDL_Window *window) {
         }
         SDL_Delay(1);
     }
-    SDL_DestroyRenderer(renderer);
     return 0;
 }
 
 int main (int argc, char* argv[]) {
-    SDL_Window* window = setup();
-    test_keyboard(window);
-    return teardown(window);
+    SDL_Window * window;
+    SDL_Renderer * renderer;
+    setup(window, renderer);
+    test_keyboard(renderer);
+    teardown(window, renderer);
+    return 0;
 }
