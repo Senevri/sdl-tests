@@ -4,4 +4,4 @@ wget -nc %sdl_devel_vc%
 ::wget -nc %sdl_lib_zip%
 
 ::for /f "tokens=1" %%a in ( 'dir *win32* /b' ) do 7z x -olib %%a 
-for /f "tokens=1" %%a in ( 'dir *devel* /b' ) do 7z x -oext %%a 
+for /f "delims=" %%a in ( 'dir *devel* /b' ) do 7z x -oext %%a 
